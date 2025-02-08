@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>凯利公式计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .result {
+            background-color: #f9fafb;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">凯利公式投资计算器</h1>
+            <p class="text-gray-600 mt-2">帮助您计算最优投资比例，实现长期收益最大化</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-2">使用说明：</h2>
+                <ul class="text-gray-600 space-y-1">
+                    <li>• 当前价格：当前股票价格</li>
+                    <li>• 目标价格：预期股票能达到的目标价位</li>
+                    <li>• 止损价格：设置的止损价位</li>
+                    <li>• 获胜概率：达到目标价格的概率</li>
+                </ul>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">当前价格</label>
+                    <input type="number" id="currentPrice" placeholder="输入当前股票价格" step="0.01">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">目标价格</label>
+                    <input type="number" id="targetPrice" placeholder="输入目标价格" step="0.01">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">止损价格</label>
+                    <input type="number" id="stopLoss" placeholder="输入止损价格" step="0.01">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">获胜概率 (%)</label>
+                    <input type="number" id="probability" placeholder="输入获胜概率" min="0" max="100">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">当前资金</label>
+                    <input type="number" id="capital" placeholder="输入当前资金">
+                </div>
+            </div>
+
+            <button onclick="calculateKelly()">计算</button>
+
+            <div id="result" class="result hidden">
+                <h3 class="font-semibold mb-2">计算结果</h3>
+                <p class="text-gray-600">
+                    建议投资比例: <span id="percentage"></span>%
+                </p>
+                <p class="text-gray-600">
+                    建议投资金额: ¥<span id="amount"></span>
+                </p>
+                <p class="text-gray-600">
+                    止损时损失金额: ¥<span id="lossAmount"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateKelly() {
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+            const targetPrice = parseFloat(document.getElementById('targetPrice').value);
+            const stopLoss = parseFloat(document.getElementById('stopLoss').value);
+            const probability = parseFloat(document.getElementById('probability').value) / 100;
+            const capital = parseFloat(document.getElementById('capital').value);
+
+            if (isNaN(currentPrice) || isNaN(targetPrice) || isNaN(probability) || 
+                isNaN(capital) || isNaN(stopLoss)) {
+                alert('请输入有效的数字');
+                return;
+            }
+
+            if (probability <= 0 || probability >= 1) {
+                alert('概率必须在0-100之间');
+                return;
+            }
+
+            const odds = targetPrice / currentPrice;
+            if (odds <= 1) {
+                alert('目标价格必须大于当前价格');
+                return;
+            }
+
+            const kellyFraction = (probability * odds - (1 - probability)) / odds;
+            const recommendedAmount = kellyFraction * capital;
+            const shares = Math.floor(recommendedAmount / currentPrice);
+            const totalLoss = shares * (currentPrice - stopLoss);
+
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('percentage').textContent = (kellyFraction * 100).toFixed(2);
+            document.getElementById('amount').textContent = recommendedAmount.toFixed(2);
+            document.getElementById('lossAmount').textContent = totalLoss.toFixed(2);
+        }
+    </script>
+</body>
+</html> 
